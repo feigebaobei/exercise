@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "webpack-dev-server --inline --progress --config webpack.config.js",
+    "start": "webpack-dev-server --open",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --config webpack.config.js"
   },
@@ -19,11 +21,14 @@
   },
   "homepage": "https://github.com/feigebaobei/exercise#readme",
   "devDependencies": {
-    "sm2": "^1.0.1",
     "webpack": "^4.41.5",
-    "webpack-cli": "^3.3.10"
+    "webpack-cli": "^3.3.10",
+    "webpack-dev-server": "^3.10.3"
   },
   "dependencies": {
-    "lodash": "^4.17.15"
+    "lodash": "^4.17.15",
+    "md5": "^2.2.1",
+    "sm.js": "^0.1.7",
+    "sm2": "^1.0.1"
   }
 }
