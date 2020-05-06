@@ -9,4 +9,7 @@
 // import testByte from "./testByte"
 // import single from './singlePage'
 // import testBuild from './testBuild'
-import testPerformance from './testPerformance'
+// import testPerformance from './testPerformance'
+// import testJsonRpc from './testJsonRpc'
+// import testUsejp from './testUsejp'
+import testaxios from './testaxios'

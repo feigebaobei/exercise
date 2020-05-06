@@ -26,6 +26,7 @@
     "webpack-dev-server": "^3.10.3"
   },
   "dependencies": {
+    "axios": "^0.19.2",
     "bn.js": "^5.1.1",
     "lodash": "^4.17.15",
     "md5": "^2.2.1",
