@@ -50,7 +50,9 @@ var _sm2Params = {
 
 }
 
-exports.curve = SM2 = SM2Curve(_sm2Params);
+// exports.curve = SM2 = SM2Curve(_sm2Params);
+var SM2 = SM2Curve(_sm2Params);
+exports.curve = SM2;
 
 
 /**
@@ -604,7 +606,7 @@ SM2KeyPair.prototype._combine = function(msg) {
   za = za.concat(this.pub.getX().toArray());
   za = za.concat(this.pub.getY().toArray());
 
-  h = new sm3();
+  var h = new sm3();
   za = h.sum(za);
 
   // console.log(za.join())
@@ -672,7 +674,7 @@ function kdf(x, y, length) {
     }
     ct++
   }
-  for (var i = 0; i < length; i++) {
+  for (i = 0; i < length; i++) {
     if (res[i] != 0) {
       return {res: res, bool: true}
     }
@@ -685,7 +687,8 @@ function kdf(x, y, length) {
  * @return {[type]}     [description]
  */
 SM2KeyPair.prototype.encrypt = function(msg) {
-  let [lenx1, leny1, lenx2, leny2, length] = [0, 0, 0, 0, msg.length]
+  // let [lenx1, leny1, lenx2, leny2, length] = [0, 0, 0, 0, msg.length]
+  let length = msg.length
   while (true) {
     var res = []
     var k = randFieldElement(this.curve)
@@ -695,7 +698,7 @@ SM2KeyPair.prototype.encrypt = function(msg) {
     var kpub = this.pub.mul(k)
     var x2 = kpub.getX()
     var y2 = kpub.getY()
-    let [lenx1, leny1, lenx2, leny2] = [x1.byteLength(), y1.byteLength(), x2.byteLength(), y2.byteLength()]
+    // let [lenx1, leny1, lenx2, leny2] = [x1.byteLength(), y1.byteLength(), x2.byteLength(), y2.byteLength()]
     res = res.concat(x1.toArray('be', 32))
     res = res.concat(y1.toArray('be', 32))
     var tm = []
@@ -732,7 +735,7 @@ SM2KeyPair.prototype.decrypt = function(msg) {
   // console.log('msg', msg)
   // 此时msg是 []byte 类型
   let [length, x, y] = [msg.length - 96, utils.bnSetBytesArr(msg.slice(0, 32)), utils.bnSetBytesArr(msg.slice(32, 64))]
-  var prig = this.curve.g.mul(this.pri)
+  // var prig = this.curve.g.mul(this.pri)
   var p2 = _sm2Point(x, y).mul(this.pri)
   let [x2, y2] = [p2.getX(), p2.getY()]
 
