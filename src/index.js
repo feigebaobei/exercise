@@ -2,7 +2,7 @@
 
 // import sm from "./testsm"
 // import sm1 from "./testsm1"
-// import sm2 from "./testsm2"
+import sm2 from "./testsm2"
 // import testhash from "./testhash"
 // import xxtea from "./testxxtea"
 // import testbn from "./testbn"
@@ -12,4 +12,5 @@
 // import testPerformance from './testPerformance'
 // import testJsonRpc from './testJsonRpc'
 // import testUsejp from './testUsejp'
-import testaxios from './testaxios'
+// import testaxios from './testaxios'
+// import testsm4 from './testsm4'
