@@ -1,23 +1,113 @@
 import sm2js from './sm.js'
+import utils from './util'
+import crypto from 'crypto'
+import assert from 'assert'
+import Secp256k1 from '@enumatech/secp256k1-js'
+
+
 // import sm2js from './sm.js/dist/sm.js' // 这个不能正确运行，后续我会把它做好。
 // import distTest from './sm.js/dist/test.js'
 // import BN from "bn.js"
 // import crypto from 'crypto'
 
 var hashStr = 'c888c9ce9e098d5864d3ded6ebcc140a12142263bace3a23a36f9905f12bd64a' // 与go代码里一样的字符串
-var priStr = '55c974f17a0b44178d982dcd478150b8a4c0f206f397d7880d06bf5a72932b81'
+// var priStr = '55c974f17a0b44178d982dcd478150b8a4c0f206f397d7880d06bf5a72932b81'
+var priStr = '4d8126a957af5a3fbfc3e5125dafcc72fab20a15ee71174a21e37ce88b7d0124'
 var sm2 = sm2js.sm2
 
-main()
-function main() {
-  test0()
-  test1()
-  test2()
+// main3() // 三月份时的非对称加密
+// mainEcdsa()
+tSecp256k1()
+function main3() {
+  // test0()
+  // test1()
+  // test2()
+  // test3()
+  // test4()
+  test6()
+}
+function tSecp256k1 () {
+
+  // Generating private key
+  const privateKeyBuf = crypto.randomBytes(32)
+  const privateKey = Secp256k1.uint256(privateKeyBuf, 16)
+
+  // Generating public key
+  const publicKey = Secp256k1.generatePublicKeyFromPrivateKeyData(privateKey)
+  const pubX = Secp256k1.uint256(publicKey.x, 16)
+  const pubY = Secp256k1.uint256(publicKey.y, 16)
+
+  // Signing a digest
+  const digest = Secp256k1.uint256("483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8", 16)
+  const sig = Secp256k1.ecsign(privateKey, digest)
+  const sigR = Secp256k1.uint256(sig.r,16)
+  const sigS = Secp256k1.uint256(sig.s,16)
+
+  // Verifying signature
+  const isValidSig = Secp256k1.ecverify(pubX, pubY, sigR, sigS, digest)
+  assert(isValidSig === true, 'Signature must be valid')
+  console.log('privateKey', privateKey)
+  console.log('publicKey', publicKey)
+  console.log('digest', digest)
+  console.log('sig', sig)
+  // console.log('sigR', sigR)
+  // console.log('sigS', sigS)
+  console.log('isValidSig', isValidSig)
+}
+
+function mainEcdsa () {
+  test5()
+}
+
+function test6() {
+  // console.log('test5')
+  // 解密go生成的密文
+  // let ct = '556ba529a9c56936b248e76660c3992f9fabc1300a865a4590ef36204d73ce1e259049d24b9b0b211d959b50ddeeb934bca9facac1b038c4a57c450333bb9582470e9f8af98e5e17fe56defe05d6700a78078d2914d6b6362edee43f975ba4c991b2fb7147fedf'
+  var keys = sm2.genKeyPair(priStr)
+  var ct = keys.encrypt(hashStr)
+  console.log('ct', ct)
+  console.log('ct:', `[${ct.join(', ')}]`, utils.arrToHexStr(ct))
+  let mt = keys.decrypt(ct)
+  console.log('mt', mt)
+}
+
+
+function test5() {
+  console.log('test5')
+}
+
+function test3() {
+  var keys = sm2.genKeyPair(priStr)
+  let hs = '64e604787cbf194841e7b68d7cd28786f6c9a0a3ab9f8b0a0e87cb4387ab0107'
+  var sign = keys.signSha512(hs)
+  console.log('sign', sign)
+  console.log('0x+r+s', `0x${sign.r}${sign.s}`)
+  let isok = keys.verify512(hs, sign.r, sign.s)
+  console.log('isok', isok)
+}
+
+// 在js中验签go中的签名。
+function test4() {
+  var keys = sm2.genKeyPair(priStr)
+  let hs = '64e604787cbf194841e7b68d7cd28786f6c9a0a3ab9f8b0a0e87cb4387ab0107'
+  // var sign = keys.signSha512(hs)
+  var signGo = '57cf73df84c6b554d28efab9746eacee456110669391d37915c9d75ae91610e658576557294ed0a3ccbcc9a82acbef49302ebcf19daa46d00f74f072458a8856'
+  var signJs = 'ab623df8982082fed7e67d121798e72e4bd97a96d03c2378f3e3b691cc5667cbf476db3c3f7e9d96c73b234fac61dd2b17c4b150ace1337c488d899906569e26'
+             // '57cf73df84c6b554d28efab9746eacee456110669391d37915c9d75ae91610e6 58576557294ed0a3ccbcc9a82acbef49302ebcf19daa46d00f74f072458a8856'
+  // var r = signGo.slice(0, 64)
+  // var s = signGo.slice(64)
+  // console.log('signGo', signGo)
+  // console.log(`0x${r}`, `${s}`)
+  // let isok = keys.verify512(hs, r, s)
+  // console.log('isok', isok)
+  console.log('isok', keys.verify512(hs, signGo.slice(0, 64), signGo.slice(64)))
+  console.log('isok', keys.verify512(hs, signJs.slice(0, 64), signJs.slice(64)))
 }
 
 // 使用指定的私钥
 function test0() {
   var keyesDefine = sm2.genKeyPair(priStr)
+  console.log('keyesDefine', keyesDefine)
   var ct = keyesDefine.encrypt(hashStr)
   console.log('ct', ct)
   console.log('ct:', `[${ct.join(', ')}]`)
