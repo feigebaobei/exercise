@@ -172,6 +172,19 @@ function strToAscii(str) {
   return arr
 }
 
+/**
+ * 把16进制的字符串组成的数据 => 字符串
+ * @param  {[]string} arr string型的16进制
+ * @return {[type]}     [description]
+ */
+function ascii16ToStr(arr) {
+  var str = ''
+  for (var i = 0; i < arr.length; i++) {
+    str += String.fromCharCode(parseInt(arr[i]).toString(16))
+  }
+  return str
+}
+
 
 export default {
   hexToTen: hexToTen,
@@ -187,5 +200,6 @@ export default {
   arrayToString: arrayToString,
   strHexToBytes: strHexToBytes,
   // isEqualArr: isEqualArr
-  strToAscii: strToAscii
+  strToAscii: strToAscii,
+  ascii16ToStr: ascii16ToStr
 }
