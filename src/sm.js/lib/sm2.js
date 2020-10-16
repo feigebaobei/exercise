@@ -375,9 +375,11 @@ SM2KeyPair.prototype.signSha512 = function(msg) {
   }
   // 使用hash512
   var ressha512 = null
+  console.log('this.pri.toString()', this.pri.toString(16))
   ressha512 = shajs('sha512').update(this.pri.toString())
-                              // .update('7a4ef5844f07d191bd77f8069af28ca0')
-                              .update(utils.random(16))
+                              .update('7a4ef5844f07d191bd77f8069af28ca0')
+                              // [122, 78, 245, 132, 79, 7, 209, 145, 189, 119, 248, 6, 154, 242, 140, 160]
+                              // .update(utils.random(16))
                               .update(msg)
                               .digest('hex')
   // ressha512 = shajs('sha512').update('55c974f17a0b44178d982dcd478150b8a4c0f206f397d7880d06bf5a72932b81') // 64 pri.D
@@ -386,6 +388,8 @@ SM2KeyPair.prototype.signSha512 = function(msg) {
   //                .digest('hex') // fd30f3229aaa010bce47f6f598a61b2bf97e38fad3d5f00dfa54d2b39498ef3b4dcc21d8bc1f83d65a1e32b54fcf83f0d6bc01913716d56a06c9c466a5ca2c27 // 128
   // var msgHash = 'c888c9ce9e098d5864d3ded6ebcc140a12142263bace3a23a36f9905f12bd64a'
   var res = ressha512.slice(0, 64)
+  console.log('res', res)
+  console.log('utils.random(16)', utils.random(16))
   // return this.signDigest512(res, utils.strToBytes(msg))
   return this.signDigest512(res, utils.strToAscii(msg))
 }
@@ -642,7 +646,9 @@ SM2KeyPair.prototype.toString = function() {
 function randFieldElement(c) {
   var b = utils.random(40) // 4ab1f022d19eae94e4c17f4c33393218e4841ac696f01cb02bbd8c9dfac341ba835fc13b117bccb4
   // b = [179, 118, 189, 171, 241, 54, 167, 208, 18, 209, 23, 78, 52, 111, 194, 187, 238, 47, 229, 198, 114, 145, 49, 7, 196, 50, 136, 37, 169, 86, 144, 239, 207, 188, 40, 171, 206, 81, 127, 141] // 40
-  b = 'b376bdabf136a7d012d1174e346fc2bbee2fe5c672913107c4328825a95690efcfbc28abce517f8d'
+  // console.log('b:', b)
+  // b = 'b376bdabf136a7d012d1174e346fc2bbee2fe5c672913107c4328825a95690efcfbc28abce517f8d'
+  // console.log('b:', b)
   var bArr = []
   for (var i = 0; i < b.length;) {
     // 16 => 10
@@ -688,10 +694,12 @@ function kdf(x, y, length) {
  */
 SM2KeyPair.prototype.encrypt = function(msg) {
   // let [lenx1, leny1, lenx2, leny2, length] = [0, 0, 0, 0, msg.length]
-  let length = msg.length
+  let msgBytes = utils.hexStrToArr(msg)
+  // let length = msg.length
+  let length = msgBytes.length
   while (true) {
     var res = []
-    var k = randFieldElement(this.curve)
+    var k = randFieldElement(this.curve) // 该方法内使用了随机数
     var kg = this.curve.g.mul(k)
     var x1 = kg.getX()
     var y1 = kg.getY()
@@ -704,7 +712,8 @@ SM2KeyPair.prototype.encrypt = function(msg) {
     var tm = []
     tm = tm.concat(x2.toArray('be', 32))
     // tm = tm.concat(utils.strToBytes(msg))
-    tm = tm.concat(utils.strToAscii(msg))
+    // tm = tm.concat(utils.hexStrToArr(msg))
+    tm = tm.concat(msgBytes)
     tm = tm.concat(y2.toArray('be', 32))
     var h = new sm3().sum(tm)
     res = res.concat(h)
@@ -715,7 +724,8 @@ SM2KeyPair.prototype.encrypt = function(msg) {
     res = res.concat(kdfRes.res)
     for (var i = 0; i < length; i++) {
       // res[96+i] ^= utils.strToBytes(msg.slice(i, i+1))[0]
-      res[96+i] ^= utils.strToAscii(msg.slice(i, i+1))[0]
+      // res[96+i] ^= utils.strToAscii(msg.slice(i, i+1))[0]
+      res[96+i] ^= msgBytes[i]
     }
     return res
   }
@@ -730,9 +740,8 @@ SM2KeyPair.prototype.decrypt = function(msg) {
   //   msg = utils.bytesToStrHex(msg)
   // }
   if (typeof(msg) == 'string') {
-    msg = utils.strHexToBytes(msg)
+    msg = utils.strHexToArr(msg)
   }
-  // console.log('msg', msg)
   // 此时msg是 []byte 类型
   let [length, x, y] = [msg.length - 96, utils.bnSetBytesArr(msg.slice(0, 32)), utils.bnSetBytesArr(msg.slice(32, 64))]
   // var prig = this.curve.g.mul(this.pri)
@@ -756,6 +765,8 @@ SM2KeyPair.prototype.decrypt = function(msg) {
   if (h.join(' ') != msg.slice(64, 96).join(' ')) {
     return false
   }
-  return kdfRes.res
+  // console.log('res', kdfRes.res)
+  // return kdfRes.res
+  return utils.arrToStrHex(kdfRes.res)
 
 }

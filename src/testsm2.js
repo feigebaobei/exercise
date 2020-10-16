@@ -1,62 +1,39 @@
 import sm2js from './sm.js'
 import utils from './util'
-import crypto from 'crypto'
-import assert from 'assert'
-import Secp256k1 from '@enumatech/secp256k1-js'
 
 
 // import sm2js from './sm.js/dist/sm.js' // 这个不能正确运行，后续我会把它做好。
 // import distTest from './sm.js/dist/test.js'
 // import BN from "bn.js"
-// import crypto from 'crypto'
 
-var hashStr = 'c888c9ce9e098d5864d3ded6ebcc140a12142263bace3a23a36f9905f12bd64a' // 与go代码里一样的字符串
+// var hashStr = '64e604787cbf194841e7b68d7cd28786f6c9a0a3ab9f8b0a0e87cb4387ab0107' // 与go代码里一样的字符串
+var hashStr = '1234561234567890abcdef' // 与go代码里一样的字符串
 // var priStr = '55c974f17a0b44178d982dcd478150b8a4c0f206f397d7880d06bf5a72932b81'
 var priStr = '4d8126a957af5a3fbfc3e5125dafcc72fab20a15ee71174a21e37ce88b7d0124'
+var hs = '0x64e604787cbf194841e7b68d7cd28786f6c9a0a3ab9f8b0a0e87cb4387ab0107'
 var sm2 = sm2js.sm2
 
 // main3() // 三月份时的非对称加密
-// mainEcdsa()
-tSecp256k1()
+mainEcdsa()
+
 function main3() {
-  // test0()
+  test0()
   // test1()
   // test2()
   // test3()
   // test4()
-  test6()
-}
-function tSecp256k1 () {
-
-  // Generating private key
-  const privateKeyBuf = crypto.randomBytes(32)
-  const privateKey = Secp256k1.uint256(privateKeyBuf, 16)
-
-  // Generating public key
-  const publicKey = Secp256k1.generatePublicKeyFromPrivateKeyData(privateKey)
-  const pubX = Secp256k1.uint256(publicKey.x, 16)
-  const pubY = Secp256k1.uint256(publicKey.y, 16)
-
-  // Signing a digest
-  const digest = Secp256k1.uint256("483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8", 16)
-  const sig = Secp256k1.ecsign(privateKey, digest)
-  const sigR = Secp256k1.uint256(sig.r,16)
-  const sigS = Secp256k1.uint256(sig.s,16)
-
-  // Verifying signature
-  const isValidSig = Secp256k1.ecverify(pubX, pubY, sigR, sigS, digest)
-  assert(isValidSig === true, 'Signature must be valid')
-  console.log('privateKey', privateKey)
-  console.log('publicKey', publicKey)
-  console.log('digest', digest)
-  console.log('sig', sig)
-  // console.log('sigR', sigR)
-  // console.log('sigS', sigS)
-  console.log('isValidSig', isValidSig)
 }
 
 function mainEcdsa () {
-  test5()
+  // test5()
+  // test6()
+  // test7()
+  // test8()
+  // test9()
+  // test10()
+  // test11()
+  test12()
+  // confuse()
 }
 
 function test6() {
@@ -65,15 +42,78 @@ function test6() {
   // let ct = '556ba529a9c56936b248e76660c3992f9fabc1300a865a4590ef36204d73ce1e259049d24b9b0b211d959b50ddeeb934bca9facac1b038c4a57c450333bb9582470e9f8af98e5e17fe56defe05d6700a78078d2914d6b6362edee43f975ba4c991b2fb7147fedf'
   var keys = sm2.genKeyPair(priStr)
   var ct = keys.encrypt(hashStr)
-  console.log('ct', ct)
-  console.log('ct:', `[${ct.join(', ')}]`, utils.arrToHexStr(ct))
+  // console.log('ct', ct)
+  // console.log('ct:', `[${ct.join(', ')}]`, utils.arrToHexStr(ct))
   let mt = keys.decrypt(ct)
-  console.log('mt', mt)
+  console.log('mt', mt, utils.arrToStr(mt))
+}
+
+// 解密go的加密结果
+function test7() {
+  var ct = 'f4dae553d3a2325f95fb1b4419a4ae3e7a34ea0b103b05ed418c3d53f801836a7c3f8ffd915969b4056d7e4e5604d57bb599831c64bdfd8a6b9f981948e1c4bd3af1c8fe1a67154608139dd3942962dfe2739e4c9fbbd28cf406d785d15a0897d56b52dbf2cffee14f048d'
+  var keys = sm2.genKeyPair(priStr)
+  let mt = keys.decrypt(ct)
+  console.log('mt', mt, utils.arrToStr(mt))
+}
+
+// 比对公钥是否相同
+// 是相同的
+function test8() {
+  var keys = sm2.genKeyPair(priStr)
+  console.log('pub defaul:', keys.pubToString())
+}
+
+// 比对加密结果是否一样
+function test9() {
+  var keys = sm2.genKeyPair(priStr)
+  // var ct = keys.encrypt(utils.strToStr16(hashStr))
+  var ct = keys.encrypt(hashStr)
+  console.log('ct:', ct, utils.arrToHexStr(ct))
+}
+
+// 比对解密结果是否一样
+function test10 () {
+  var keys = sm2.genKeyPair(priStr)
+  let ct = '9b995ccf25c18cf2813c0fa65e103de8c30646afae6cd7dd1678b9e183934a5f11b87019d6454947fae25d6665c5f3bdf3a6c6fdb73879cd19f7a232155d86f2b783be3b0c50aaa709d4ee895c2214024c633b0dc3b26a5eb8859c1fbd3e917b7595996714700417d1eabf'
+  let mt = keys.decrypt(ct)
+  console.log('mt:', mt)
+}
+
+// 比对验签结果
+function test11 () {
+  var keys = sm2.genKeyPair(priStr)
+  // var isok = keys.verify512(hs, signData.r, signData.s)
+  var isok = keys.verify512(hs, '8b8d6351831dfa8b692eb8375052ef7c3fd0076147fd0ac9b1dbd2c9acb5963f', 'eca4b93d7bc618e7d63a93be2f41a9266b758ca3006ee20059fdca4a0633d247')
+  console.log('isok:', isok)
+}
+
+// 比对签名结果
+function test12 () {
+  var keys = sm2.genKeyPair(priStr)
+  // var isok = keys.verify512(hs, signData.r, signData.s)
+  var sign = keys.signSha512(hs)
+  console.log('sign:', sign)
 }
 
 
+
 function test5() {
-  console.log('test5')
+  var keyesDefine = sm2.genKeyPair(priStr)
+  console.log('keyesDefine', keyesDefine)
+  // console.log('hashStr', hashStr)
+  // var ct = keyesDefine.encrypt(hashStr)
+  // console.log('ct', ct, utils.arrToHexStr(ct))
+  // console.log('ct:', `[${ct.join(', ')}]`)
+  // var mt = keyesDefine.decrypt(ct)
+  var ctgo = '592d33f0ddef85da70c7852bc732bca1071a9fd27383d78bc8acb5631dfafe55aebd2d0c11e257863e2768438ebcac9f83f48ce62db2ece3d5fd65fbcb18e3e7e699e081e7810dff52f5008dcf8b8fef98089220cc4504773d305819bd9389a1f3fa73f2cbc9511faad878'
+  // console.log('ctgo:', ctgo)
+  // var mt = keyesDefine.decrypt(ct)
+  var mt = keyesDefine.decrypt(ctgo)
+  console.log('mt:', `[${mt.join(', ')}]`, utils.arrToHexStr(mt))
+  // var signData = keyesDefine.signSha512(hashStr)
+  // console.log('signData:', signData)
+  // var isok = keyesDefine.verify512(hashStr, signData.r, signData.s)
+  // console.log('isok:', isok)
 }
 
 function test3() {
@@ -144,11 +184,21 @@ function test1() {
 
 // 使用原版sm2.js的方法
 function test2() {
-  var keyes = sm2.genKeyPair()
-  var sign = keyes.sign(hashStr)
+  var keys = sm2.genKeyPair()
+  var sign = keys.sign(hashStr)
   console.log('sign:', sign)
   // sign: {r: "64590e43b91e7a6c1249c9f3e19cb1f84e9fe56160d9f502a764e856193c9336", s: "2063cb56b981581a333b11ade303106c6c388a86955a01915ee5e6cfcba8faab"}
-  var isok = keyes.verify(hashStr, sign.r, sign.s)
+  var isok = keys.verify(hashStr, sign.r, sign.s)
   console.log('isok:', isok)
   // isok: true
+}
+
+// 处理杂事的方法
+function confuse () {
+  // let s = 'b376bdabf136a7d012d1174e346fc2bbee2fe5c672913107c4328825a95690efcfbc28abce517f8d'
+  // console.log(utils.hexStrToArr(s))
+  // let str16 = utils.strToStr16(s)
+  let s = "7a4ef5844f07d191bd77f8069af28ca0"
+  let str16 = utils.hexStrToArr(s)
+  console.log('str16', str16)
 }

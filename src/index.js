@@ -15,8 +15,10 @@
 // import testUsejp from './testUsejp'
 // import testaxios from './testaxios'
 // import testsm3 from './testsm3'
-import testsm4 from './testsm4'
+// import testsm4 from './testsm4'
 // import testbase64 from "./testbase64"
 // import testsha3 from './testsha3'
 // import testSign from './testSign'
 // import testTSS from './testTSS' // 测试token-sdk-server
+// import testutf8 from "./testutf8"
+import confuse from "./confuse"

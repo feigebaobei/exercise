@@ -57,8 +57,14 @@ let arrToHexStr = (arr) => arr.reduce((res, cur) => {
   }
   return res += s
 }, '')
+/**
+ * 十六进制字符串 => 数组
+ * @param  {hexStr} str [description]
+ * @return {[type]}     [description]
+ */
 let hexStrToArr = (str) => { // eg: d0c138ee0cfce437352a5af46e31a6
   let res = [], i = 0
+  str = str.indexOf('0x') === 0 ? str.slice(2) : str
   while (i < str.length) {
     res.push(parseInt(str.slice(i, i+2), 16))
     i += 2
@@ -173,6 +179,25 @@ function strToAscii(str) {
 }
 
 /**
+ * 字符串 => 十六进制字符串
+ * @param  {string} str [description]
+ * @return {string}     [description]
+ */
+function strToStr16(str) {
+  return str.split('').reduce((res, cur) => {
+    return res += cur.charCodeAt(0).toString(16)
+  }, '')
+}
+
+function fn (str) {
+  str.split('')
+  // return str.split('').reduce((res, cur) => {
+  //   res.push(cur.)
+  //   return res
+  // }, [])
+}
+
+/**
  * 把16进制的字符串组成的数据 => 字符串
  * @param  {[]string} arr string型的16进制
  * @return {[type]}     [description]
@@ -183,6 +208,26 @@ function ascii16ToStr(arr) {
     str += String.fromCharCode(parseInt(arr[i]).toString(16))
   }
   return str
+}
+
+function getImgBase64(imgUrl) {
+  var base64 = ''
+  let img = new Image()
+  img.src = imgUrl
+  img.onload = () => {
+    let canvas = document.createElement('canvas')
+    canvas.width = img.width
+    canvas.height = img.height
+    var ctx = canvas.getContext('2d')
+    ctx.drawImage(img, 0, 0, img.width, img.height)
+    let dataURL = canvas.toDataURL('image/png')
+    // base64 = dataURL
+
+    return dataURL
+  }
+  return new Promise(resolve => {
+    resolve(img.onload())
+  })
 }
 
 
@@ -201,5 +246,7 @@ export default {
   strHexToBytes: strHexToBytes,
   // isEqualArr: isEqualArr
   strToAscii: strToAscii,
-  ascii16ToStr: ascii16ToStr
+  ascii16ToStr: ascii16ToStr,
+  strToStr16: strToStr16,
+  getImgBase64: getImgBase64
 }
